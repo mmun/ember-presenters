@@ -50,10 +50,10 @@ export default Ember.Object.extend({
 ```hbs
 {{#each posts as |post|}}
   {{#each post.comments as |comment|}}
-    {{#with (present 'comment' comment=comment) as |comment|}}
+    {{#with (present 'comment' comment=comment) as |commentPresenter|}}
       <div>
         <p>{{comment.body}}</p>
-        {{#if comment.isRecent}}
+        {{#if commentPresenter.isRecent}}
           <div>This is a recent comment.</div>
         {{/if}}
       </div>
