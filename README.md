@@ -1,26 +1,63 @@
 # ember-presenters
 
-This README outlines the details of collaborating on this Ember addon.
+This addon provides a template helper for presenting your data in your templates.
+See [usage](#usage).
+
+###  But why?
+
+Of course, this could also be accomplished with a component but presenters offer a few advantages in some cases:
+
+- Component names are required to contain a hyphen. Presenter names are not.
+- Unlike components, when you use a presenter, it is immediately obvious that no extra DOM elements are introduced
+- With a component, you are forced to write a template that often only contains `{{yield data}}`.
 
 ## Installation
 
-* `git clone <repository-url>` this repository
-* `cd ember-presenters`
-* `npm install`
+```
+ember install ember-presenters
+```
 
-## Running
+## Usage
 
-* `ember serve`
-* Visit your app at [http://localhost:4200](http://localhost:4200).
+### The `present` helper
 
-## Running Tests
+#### General form
 
-* `npm test` (Runs `ember try:each` to test your addon against multiple Ember versions)
-* `ember test`
-* `ember test --server`
+```hbs
+(present presenterName key1=value1 ... keyN=valueN)
+```
 
-## Building
+- `presenterName`: The name of the presenter, e.g. 'post' or 'dashboard/news-item'. Must be a string.
+- `key1=value1 ... keyN=value`: Properties that will be passed to the presenter. They are optional.
 
-* `ember build`
+#### Examples
 
-For more information on using ember-cli, visit [https://ember-cli.com/](https://ember-cli.com/).
+##### Decorating items in a list
+
+```js
+// app/presenters/comment.js
+import Ember from 'ember';
+import moment from 'moment';
+
+export default Ember.Object.extend({
+  isRecent: Ember.computed('comment.createdAt', function() {
+    let createdAt = moment(this.get('comment.createdAt'));
+    return createdAt.add(7, 'days').isAfter();
+  })
+})
+```
+
+```hbs
+{{#each posts as |post|}}
+  {{#each post.comments as |comment|}}
+    {{#with (present 'comment' comment=comment) as |comment|}}
+      <div>
+        <p>{{comment.body}}</p>
+        {{#if comment.isRecent}}
+          <div>This is a recent comment.</div>
+        {{/if}}
+      </div>
+    {{/with}}
+  {{/each}}
+{{/each}}
+```
